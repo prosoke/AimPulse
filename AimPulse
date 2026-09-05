@@ -1,3 +1,47 @@
+if _G.LOCKERX_LOADED then
+	return
+end
+_G.LOCKERX_LOADED = true
 
-gg
+if not game:IsLoaded() then game.Loaded:Wait() end
 
+local Players          = game:GetService("Players")
+local RunService       = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
+local TweenService     = game:GetService("TweenService")
+local SoundService     = game:GetService("SoundService")
+local Debris           = game:GetService("Debris")
+local CoreGui          = (gethui and gethui()) or game:GetService("CoreGui")
+
+local LocalPlayer = Players.LocalPlayer
+
+local Theme = {
+	-- Cyan-on-charcoal theme. A PURE-black panel reads as a translucent shadow over
+	-- the game and swallows the cyan ("shadow look"). So the surface is a dark
+	-- NEUTRAL charcoal - dark enough to read as black, but a real solid surface, and
+	-- desaturated so it isn't "blueish". Neon cyan accents + near-white text sit on
+	-- top at high contrast, so the enabled features clearly override the dark.
+	Panel   = Color3.fromRGB(32, 36, 44),
+	Panel2  = Color3.fromRGB(44, 50, 60),
+	Line    = Color3.fromRGB(0, 224, 255),
+	Txt     = Color3.fromRGB(240, 248, 255),
+	Acc     = Color3.fromRGB(0, 224, 255),   -- neon cyan (switches / sliders / bind buttons / tab accent)
+	Acc2    = Color3.fromRGB(150, 240, 255), -- light cyan (highlights, value labels, glows)
+	AccDeep = Color3.fromRGB(0, 92, 132),    -- deep teal (border-gradient shadow end)
+	Black   = Color3.fromRGB(0, 0, 0),
+}
+
+local FontHead = Enum.Font.GothamBold
+local FontMono = Enum.Font.Code
+
+--------------------------------------------------------------------
+-- hit effects: shared state only (UI + Hitsounds table + triggering all
+-- live together near the Visuals panel further down, once Log/updateTally/
+-- etc. exist - kept out of here so that data doesn't sit in a main-chunk
+-- register for the whole script; see the do-block notes further down)
+--------------------------------------------------------------------
+
+local HitFX = {
+	SoundOn = false, ChamsOn = false, MarkerOn = false,
+	Volume = 60, SoundIndex = 1, LastAttack = 0,   -- SoundIndex corrected to "Default" once HitsoundNames exists
+}
